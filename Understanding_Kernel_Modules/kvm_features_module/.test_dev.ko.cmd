@@ -1,0 +1,1 @@
+cmd_/home/Avinash/test_modules/kvm_features_module/test_dev.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/Avinash/test_modules/kvm_features_module/test_dev.ko /home/Avinash/test_modules/kvm_features_module/test_dev.o /home/Avinash/test_modules/kvm_features_module/test_dev.mod.o
