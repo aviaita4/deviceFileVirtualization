@@ -20,6 +20,7 @@ static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 
+
 #define SUCCESS 0
 #define DEVICE_NAME "test_dev"	/* Dev name as it appears in /proc/devices   */
 #define BUF_LEN 80		/* Max length of the message from the device */
@@ -156,6 +157,14 @@ static ssize_t device_read(struct file *filp,	/* see include/linux/fs.h   */
 
     //pull(ssize)
 	//return ssize;
+	
+	//unsigned long copy_from_user (void *to, const void __user *from, unsigned long n);
+	//size is size of from place
+	//copy_from_user mostly to be done in host. Send user data (file path, 
+	//unsigned long kernelAdd;
+	//if (copy_from_user(&kernelAdd, buffer, length) != 0)
+        //	return -EFAULT;
+	
 }
 
 /*  
