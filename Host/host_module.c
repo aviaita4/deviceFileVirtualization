@@ -60,6 +60,13 @@ static int device_open(unsigned long param1, unsigned long param2, unsigned long
 	 fmode_t mode = (fmode_t) param3;
 }
 
+static int device_release()
+{
+	int ret_fop = host_file->fops->release(host_file->f_inode, host_file);
+	
+	return ret_fop;
+}
+
 static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned long param3)
 {
 	char __user *buffer = (char __user *)param1;
