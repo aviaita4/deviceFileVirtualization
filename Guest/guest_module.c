@@ -9,6 +9,11 @@
 #include<linux/linkage.h>
 #include<linux/cpumask.h>
 
+extern long kern_kvm_hypercall0(unsigned int nr);
+extern long kern_kvm_hypercall1(unsigned int nr, unsigned long p1);
+extern long kern_kvm_hypercall2(unsigned int nr, unsigned long p1, unsigned long p2);
+extern long kern_kvm_hypercall3(unsigned int nr, unsigned long p1, unsigned long p2, unsigned long p3);
+extern long kern_kvm_hypercall4(unsigned int nr, unsigned long p1, unsigned long p2, unsigned long p3, unsigned long p4);
 
 int init_module(void);
 void cleanup_module(void);
