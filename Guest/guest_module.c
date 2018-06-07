@@ -260,23 +260,3 @@ device_write(struct file *filp, const char *buff, size_t len, loff_t * off)
 	return SUCCESS;
 	
 }
-
-/*
-int test_kvm_features(void){
-
-        int return_val;
-	unsigned long hypercall_ret;
-	printk(KERN_ALERT "Hello! Testing kvm features! \n");
-
-        if(!kvm_para_available()){
-                printk(KERN_ALERT "KVM not available!\n");
-        }else{
-                printk(KERN_ALERT "KVM available!\n");
-               // return_val  = kvm_arch_para_features();
-		//hypercall_ret = kvm_hypercall0(0);
-               // int ret = kvm_arch_para_hints();
-        }
-        
-        return 0;
-}
-*/
