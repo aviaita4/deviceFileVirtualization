@@ -25,6 +25,8 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 #define DEVICE_NAME "test_dev"	/* Dev name as it appears in /proc/devices   */
 #define BUF_LEN 80		/* Max length of the message from the device */
 
+#define HOST_FILE_PATH "/test.c"
+#define KVM_HYPERCALL_SUCCESS 0
 /* 
  * Global variables are declared as static, so are global within the file. 
  */
@@ -120,6 +122,18 @@ static int device_open(struct inode *inode, struct file *file)
 
 	//return SUCCESS;	
 
+	unsigned long path_name = HOST_FILE_PATH;
+	unsigned int flags = file->f_flags;
+	fmode_t mode = file->f_mode;
+	
+	long ret = kern_kvm_hypercall3(,path_name,flags,mode);
+	//give hypercall numbers
+	
+	if (ret!=KVM_HYPERCALL_SUCCESS){
+		printk(KERN_INFO "device could not be opened");
+	}
+	else{
+		printk(KERN_INFO "device file opened successfully");
 }
 
 /* 
