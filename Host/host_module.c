@@ -9,6 +9,7 @@
 #include <linux/cpumask.h>
 
 #define PATH_NAME_MAX_SIZE 100
+#define FILE_OPERATION_SUCCESS 0
 
 struct file* host_file;
 
@@ -78,7 +79,7 @@ void cleanup_module(void)
 	
  }
 
- static int device_read(void)
+ static int device_read(unsigned long param1, unsigned long param2, unsigned long param3)
  {
 
 	//pull(physical address)
@@ -89,6 +90,25 @@ void cleanup_module(void)
 	//file->fileop->read()
 
 	//return SUCCESS;
+	 
+	char __user *buffer;
+	size_t length;
+	loff_t __user *offset;
+	 
+	
+	int ret_fop = host_file->fops->read(host_file, buffer, length, offset);
+	 
+	if (copy_to_user(&, buffer, PATH_NAME_MAX_SIZE) != 0)
+        	return -EFAULT;
+	 
+	if(ret_fop != FILE_OPERATION_SUCCESS){
+		printk(KERN_INFO " Host: Read file operation successful");
+		return -EFAULT;
+	}
+	else{
+		printk(KERN_INFO " Host: Read file operation was unsuccessful");
+	}
+	return SUCCESS;
  }
 
  static int device_write(void)
