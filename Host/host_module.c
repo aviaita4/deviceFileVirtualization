@@ -43,7 +43,7 @@ void cleanup_module(void)
  * Methods
  */
 
- static int device_open(void)
+ static int device_open(unsigned long param1, unsigned long param2, unsigned long param3)
  {
 
 	//pull(path)
@@ -64,12 +64,16 @@ void cleanup_module(void)
         //	return -EFAULT;
 	 
 	
-	 char
+	 char __user *guest_path_name = (char __user *) param1; 
 	 
 	 char actual_path_name[PATH_NAME_MAX_SIZE];
 	 
-	 if (copy_from_user(&actual_path_name, buffer, length) != 0)
+	 if (copy_from_user(&actual_path_name, buffer, PATH_NAME_MAX_SIZE) != 0)
         	return -EFAULT;
+	 
+	 unsigned int flags = (unsigned int) param2;
+	 fmode_t mode = (fmode_t) param3;
+	 
 	 
 	
  }
