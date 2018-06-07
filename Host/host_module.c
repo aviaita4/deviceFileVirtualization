@@ -8,6 +8,12 @@
 #include <linux/linkage.h>
 #include <linux/cpumask.h>
 
+// File system open etc.,
+#include <linux/fs.h>
+#include <asm/segment.h>
+#include <asm/uaccess.h>
+#include <linux/buffer_head.h>
+
 #define PATH_NAME_MAX_SIZE 100
 #define FILE_OPERATION_SUCCESS 0
 
@@ -29,6 +35,22 @@ void cleanup_module(void)
 	printk(KERN_INFO "Host module is removed!\n");
 }
 
+void file_open(struct file *filp, const char *path, int flags, int rights) 
+{
+    mm_segment_t oldfs;
+    int err = 0;
+
+    oldfs = get_fs();
+    set_fs(get_ds());
+    filp = filp_open(path, flags, rights);
+    set_fs(oldfs);
+    if (IS_ERR(filp)) {
+        err = PTR_ERR(filp);
+        return NULL;
+    }
+    return;
+}
+
 static int device_open(unsigned long param1, unsigned long param2, unsigned long param3)
 {
 	 char __user *path_name = (char __user *) param1; 
@@ -46,6 +68,7 @@ static int device_open(unsigned long param1, unsigned long param2, unsigned long
 	// Get file*
 	
 	// Store in host_file
+	file_open(host_file, kern_path_name, flags, mode);
 	
 	return SUCCESS; 
 }
