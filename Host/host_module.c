@@ -8,6 +8,7 @@
 #include <linux/linkage.h>
 #include <linux/cpumask.h>
 
+#define PATH_NAME_MAX_SIZE 100
 
 struct file* host_file;
 
@@ -61,6 +62,15 @@ void cleanup_module(void)
 	//unsigned long kernelAdd;
 	//if (copy_from_user(&kernelAdd, buffer, length) != 0)
         //	return -EFAULT;
+	 
+	
+	 char
+	 
+	 char actual_path_name[PATH_NAME_MAX_SIZE];
+	 
+	 if (copy_from_user(&actual_path_name, buffer, length) != 0)
+        	return -EFAULT;
+	 
 	
  }
 
