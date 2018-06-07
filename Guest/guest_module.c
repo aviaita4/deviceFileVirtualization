@@ -126,14 +126,17 @@ static int device_open(struct inode *inode, struct file *file)
 	unsigned int flags = file->f_flags;
 	fmode_t mode = file->f_mode;
 	
-	long ret = kern_kvm_hypercall3(,path_name,flags,mode);
+	long ret = kern_kvm_hypercall3(,path_name,(unsigned long)flags,(unsigned long)mode);
 	//give hypercall numbers
 	
 	if (ret!=KVM_HYPERCALL_SUCCESS){
 		printk(KERN_INFO "device could not be opened");
+		return -EFAULT;
 	}
 	else{
 		printk(KERN_INFO "device file opened successfully");
+	}
+	return SUCCESS;
 }
 
 /* 
@@ -150,6 +153,20 @@ static int device_release(struct inode *inode, struct file *file)
 	module_put(THIS_MODULE);
 
 	return 0;
+	
+	//Implement
+	
+	unsigned ret = kern_kvm_hypercall0();
+	//add hypercall number
+	//add these numbers in kernel
+	if (ret!=KVM_HYPERCALL_SUCCESS){
+		printk(KERN_INFO "device could not be released");
+		return -EFAULT;
+	}
+	else{
+		printk(KERN_INFO "device file released successfully");
+	}
+	return SUCCESS;
 }
 
 /* 
@@ -185,6 +202,8 @@ static ssize_t device_read(struct file *filp,	/* see include/linux/fs.h   */
 	//unsigned long kernelAdd;
 	//if (copy_from_user(&kernelAdd, buffer, length) != 0)
         //	return -EFAULT;
+	
+	
 	
 }
 
