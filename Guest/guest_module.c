@@ -97,6 +97,7 @@ static int device_release(struct inode *inode, struct file *file)
 		return -EFAULT;
 	}
 	else{
+		kfree(file);
 		printk(KERN_INFO "device file released successfully");
 	}
 	return SUCCESS;
