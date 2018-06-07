@@ -122,11 +122,13 @@ static int device_open(struct inode *inode, struct file *file)
 
 	//return SUCCESS;	
 
-	unsigned long path_name = HOST_FILE_PATH;
+	char __user *pathname = HOST_FILE_PATH
+	
+	unsigned long path_name_ptr = (unsigned long) pathname; 
 	unsigned int flags = file->f_flags;
 	fmode_t mode = file->f_mode;
 	
-	long ret = kern_kvm_hypercall3(,path_name,(unsigned long)flags,(unsigned long)mode);
+	long ret = kern_kvm_hypercall3( , path_name_ptr, (unsigned long)flags, (unsigned long)mode);
 	//give hypercall numbers
 	
 	if (ret!=KVM_HYPERCALL_SUCCESS){
@@ -205,7 +207,7 @@ static ssize_t device_read(struct file *filp,	/* see include/linux/fs.h   */
 	
 	
 	
-	long ret = kern_kvm_hypercall3(,(unsigned long)buffer,(unsigned long)length,(unsigned long)offset);
+	long ret = kern_kvm_hypercall3( , (unsigned long)buffer, (unsigned long)length, (unsigned long)offset);
 	//give hypercall numbers
 	//type cast??
 	
@@ -243,7 +245,7 @@ device_write(struct file *filp, const char *buff, size_t len, loff_t * off)
 	//return ssize;
 	
 	
-	long ret = kern_kvm_hypercall3(,(unsigned long)buff,(unsigned long)len,(unsigned long)off);
+	long ret = kern_kvm_hypercall3( , (unsigned long)buff, (unsigned long)len, (unsigned long)off);
 	//give hypercall numbers
 	//type cast??
 	
