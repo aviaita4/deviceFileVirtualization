@@ -49,20 +49,25 @@ static int device_open(unsigned long param1, unsigned long param2, unsigned long
 	//	return -EFAULT;
 
 
-	 char __user *guest_path_name = (char __user *) param1; 
+	 char __user *path_name = (char __user *) param1; 
+	 char kern_path_name[PATH_NAME_MAX_SIZE];
+	
+	 unsigned int flags = (unsigned int) param2 ;
+	 
+	 fmode_t mode = (fmode_t) param3;
 
-	 char actual_path_name[PATH_NAME_MAX_SIZE];
-
-	 if (copy_from_user(&actual_path_name, buffer, PATH_NAME_MAX_SIZE) != 0)
+	 if (copy_from_user(&kern_path_name, path_name, PATH_NAME_MAX_SIZE) != 0)
 		return -EFAULT;
 
-	 unsigned int flags = (unsigned int) param2;
-	 fmode_t mode = (fmode_t) param3;
+	 
 }
 
 static int device_release()
 {
 	int ret_fop = host_file->fops->release(host_file->f_inode, host_file);
+	
+	kfree(host_file);
+	host_file = NULL;
 	
 	return ret_fop;
 }
