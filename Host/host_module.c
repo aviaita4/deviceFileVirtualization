@@ -82,11 +82,19 @@ void cleanup_module(void)
  static int device_read(unsigned long param1, unsigned long param2, unsigned long param3)
  {
 	char __user *buffer = (char __user *)param1;
+	char kern_buffer[length];
+	 
 	size_t length = (size_t) param2;
+	 
 	loff_t __user *offset = (loff_t __user *) param3;
+	loff_t kern_offset;
+	
+	if (copy_from_user(&kern_offset, offset, sizeof(loff_t)) != 0)
+		return -EFAULT;
 	
 	
-	int ret_fop = host_file->fops->read(host_file, buffer, length, offset);
+	 
+	int ret_fop = host_file->fops->read(host_file, kern_buffer, length, kern_offset);
 	
 	if(ret_fop != FILE_OPERATION_SUCCESS){
 		printk(KERN_INFO " Host: Read file operation successful");
@@ -96,11 +104,9 @@ void cleanup_module(void)
 		printk(KERN_INFO " Host: Read file operation was unsuccessful");
 	}
 	
-	
-	if (copy_to_user(&, buffer, PATH_NAME_MAX_SIZE) != 0)
+	if ((copy_to_user(buffer, kern_buffer, length) != 0) && (copy_to_user(offset, &kern_offset, sizeof(loff_t)) != 0))
         	return -EFAULT;
 	 
-	
 	return SUCCESS;
  }
 
