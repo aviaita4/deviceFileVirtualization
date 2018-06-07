@@ -54,6 +54,14 @@ void cleanup_module(void)
 	// store struct file
 
 	//return SUCCESS;
+	 
+	 //unsigned long copy_from_user (void *to, const void __user *from, unsigned long n);
+	//size is size of from place
+	//copy_from_user mostly to be done in host. Send user data (file path, 
+	//unsigned long kernelAdd;
+	//if (copy_from_user(&kernelAdd, buffer, length) != 0)
+        //	return -EFAULT;
+	
  }
 
  static int device_read(void)
