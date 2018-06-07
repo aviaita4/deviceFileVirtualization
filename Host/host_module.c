@@ -60,7 +60,7 @@ static int device_open(unsigned long param1, unsigned long param2, unsigned long
 	 fmode_t mode = (fmode_t) param3;
 }
 
-static int device_read(unsigned long param1, unsigned long param2, unsigned long param3)
+static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned long param3)
 {
 	char __user *buffer = (char __user *)param1;
 	char kern_buffer[length];
@@ -75,21 +75,21 @@ static int device_read(unsigned long param1, unsigned long param2, unsigned long
 
 	int ret_fop = host_file->fops->read(host_file, kern_buffer, length, kern_offset);
 
-	if(ret_fop != FILE_OPERATION_SUCCESS){
+	if(ret_fop < 0){
 		printk(KERN_INFO " Host: Read file operation successful");
-		return -EFAULT;
+		return ret_fop;
 	}
 	else{
 		printk(KERN_INFO " Host: Read file operation was unsuccessful");
 	}
 
 	if ((copy_to_user(buffer, kern_buffer, length) != 0) && (copy_to_user(offset, &kern_offset, sizeof(loff_t)) != 0))
-		return -EFAULT;
+		return ret_fop;
 
-	return SUCCESS;
+	return ret_fop;
 }
 
-static int device_write(unsigned long param1, unsigned long param2, unsigned long param3)
+static ssize_t device_write(unsigned long param1, unsigned long param2, unsigned long param3)
 {
 	char __user *buffer = (char __user *)param1;
 	char kern_buffer[length];
@@ -105,11 +105,11 @@ static int device_write(unsigned long param1, unsigned long param2, unsigned lon
 	if (copy_from_user(kern_buffer, buffer, length)) != 0)
 		return -EFAULT;
 
-	int ret_fop = host_file->fops->write(host_file, kern_buffer, length, kern_offset);
+	ssize_t ret_fop = host_file->fops->write(host_file, kern_buffer, length, kern_offset);
 
-	if(ret_fop != FILE_OPERATION_SUCCESS){
+	if(ret_fop < 0){
 		printk(KERN_INFO " Host: Write file operation successful");
-		return -EFAULT;
+		return ret_fop;
 	}
 	else{
 		printk(KERN_INFO " Host: Write file operation was unsuccessful");
@@ -118,6 +118,6 @@ static int device_write(unsigned long param1, unsigned long param2, unsigned lon
 	if (copy_to_user(offset, &kern_offset, sizeof(loff_t)) != 0)
 		return -EFAULT;
 
-	return SUCCESS;
+	return ret_fop;
 }
 
