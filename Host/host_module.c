@@ -9,7 +9,7 @@
 #include <linux/cpumask.h>
 
 
-struct file* file;
+struct file* host_file;
 
 
 int init_module(void);
