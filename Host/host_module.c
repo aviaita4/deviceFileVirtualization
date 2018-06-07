@@ -31,24 +31,6 @@ void cleanup_module(void)
 
 static int device_open(unsigned long param1, unsigned long param2, unsigned long param3)
 {
-	//pull(path)
-	//pull(flags)
-	//pull(confg)
-
-	//open file
-	//get struct file 
-	// store struct file
-
-	//return SUCCESS;
-
-	 //unsigned long copy_from_user (void *to, const void __user *from, unsigned long n);
-	//size is size of from place
-	//copy_from_user mostly to be done in host. Send user data (file path, 
-	//unsigned long kernelAdd;
-	//if (copy_from_user(&kernelAdd, buffer, length) != 0)
-	//	return -EFAULT;
-
-
 	 char __user *path_name = (char __user *) param1; 
 	 char kern_path_name[PATH_NAME_MAX_SIZE];
 	
@@ -59,7 +41,13 @@ static int device_open(unsigned long param1, unsigned long param2, unsigned long
 	 if (copy_from_user(&kern_path_name, path_name, PATH_NAME_MAX_SIZE) != 0)
 		return -EFAULT;
 
-	 
+	// Open file
+	
+	// Get file*
+	
+	// Store in host_file
+	
+	return SUCCESS; 
 }
 
 static int device_release()
