@@ -91,8 +91,6 @@ void cleanup_module(void)
 	
 	if (copy_from_user(&kern_offset, offset, sizeof(loff_t)) != 0)
 		return -EFAULT;
-	
-	
 	 
 	int ret_fop = host_file->fops->read(host_file, kern_buffer, length, kern_offset);
 	
@@ -110,16 +108,35 @@ void cleanup_module(void)
 	return SUCCESS;
  }
 
- static int device_write(void)
+ static int device_write(unsigned long param1, unsigned long param2, unsigned long param3)
  {
-
-	//pull(physical address)
-	//physicaltovirtualaddress
-
-	//pull(offset)
-	//pull(length)
-	//file->fileop->write()
-
-	//return SUCCESS;
+	char __user *buffer = (char __user *)param1;
+	char kern_buffer[length];
+	 
+	size_t length = (size_t) param2;
+	 
+	loff_t __user *offset = (loff_t __user *) param3;
+	loff_t kern_offset;
+	
+	if (copy_from_user(&kern_offset, offset, sizeof(loff_t)) != 0)
+		return -EFAULT;
+	
+	if (copy_from_user(kern_buffer, buffer, length)) != 0)
+		return -EFAULT;
+	 
+	int ret_fop = host_file->fops->write(host_file, kern_buffer, length, kern_offset);
+	
+	if(ret_fop != FILE_OPERATION_SUCCESS){
+		printk(KERN_INFO " Host: Write file operation successful");
+		return -EFAULT;
+	}
+	else{
+		printk(KERN_INFO " Host: Write file operation was unsuccessful");
+	}
+	
+	if (copy_to_user(offset, &kern_offset, sizeof(loff_t)) != 0)
+        	return -EFAULT;
+	 
+	return SUCCESS;
  }
 
