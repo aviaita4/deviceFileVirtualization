@@ -17,26 +17,15 @@ struct file* host_file;
 int init_module(void);
 void cleanup_module(void);
 
-
-/*
- * This function is called when the module is loaded
- */
 int init_module(void)
 {
-        
+        host_file = NULL;
 	printk(KERN_INFO "Host module is up!\n");
-
 	return SUCCESS;
 }
 
-/*
- * This function is called when the module is unloaded
- */
 void cleanup_module(void)
 {
-	/* 
-	 * Unregister the device 
-	 */
 	printk(KERN_INFO "Host module is removed!\n");
 }
 
