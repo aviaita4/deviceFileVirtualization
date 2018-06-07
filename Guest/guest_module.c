@@ -84,6 +84,13 @@ void cleanup_module(void)
  * Methods
  */
 
+/*
+*hypercall1 for open and may be release too
+*hypercall2 for read
+*hypercall3 for write
+*hypercall4 for mmap
+
+*https://github.com/Refone/notes/blob/9a2cf6f0b3c522b160dc5e0e4ecc8ce26b050506/kvm-vmcall.md 
 /* 
  * Called when a process tries to open the device file, like
  * "cat /dev/mycharfile"
