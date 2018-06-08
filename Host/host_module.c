@@ -45,8 +45,8 @@ void file_open(struct file *filp, const char *path, int flags, int rights)
     filp = filp_open(path, flags, rights);
     set_fs(oldfs);
     if (IS_ERR(filp)) {
-        err = PTR_ERR(filp);
-        return NULL;
+	filp = NULL;
+        return;
     }
     return;
 }
