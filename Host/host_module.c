@@ -35,6 +35,8 @@ unsigned long handle_hypercall(unsigned long nr, unsigned long a0, unsigned long
 
 extern unsigned long (*kvm_transfer_handle_module)(unsigned long nr, unsigned long a0, unsigned long a1, unsigned long a2, unsigned long a3);
 
+//extern unsigned long (*kvm_transfer_handle_module);
+
 int init_module(void)
 {
         host_file = NULL;
@@ -53,6 +55,7 @@ void cleanup_module(void)
 
 unsigned long handle_hypercall(unsigned long nr, unsigned long a0, unsigned long a1, unsigned long a2, unsigned long a3)
 {
+	printk(KERN_INFO "Hypercall handler module invoked finally!");
 	unsigned long ret = DEVICE_OP_FAILURE;
 	return ret;
 }
@@ -166,3 +169,4 @@ static ssize_t device_write(unsigned long param1, unsigned long param2, unsigned
 	return ret_fop;
 }
 
+MODULE_LICENSE("GPL");
