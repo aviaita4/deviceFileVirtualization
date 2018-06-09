@@ -14,6 +14,7 @@
 #include <asm/uaccess.h>
 #include <linux/buffer_head.h>
 
+#define SUCCESS 0
 #define PATH_NAME_MAX_SIZE 100
 #define FILE_OPERATION_SUCCESS 0
 
@@ -22,6 +23,11 @@ struct file* host_file;
 
 int init_module(void);
 void cleanup_module(void);
+void file_open(struct file *filp, const char *path, int flags, int rights);
+static int device_open(unsigned long param1, unsigned long param2, unsigned long param3);
+static int device_release(void);
+static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned long param3);
+static ssize_t device_write(unsigned long param1, unsigned long param2, unsigned long param3);
 
 int init_module(void)
 {
@@ -73,9 +79,9 @@ static int device_open(unsigned long param1, unsigned long param2, unsigned long
 	return SUCCESS; 
 }
 
-static int device_release()
+static int device_release(void)
 {
-	int ret_fop = host_file->fops->release(host_file->f_inode, host_file);
+	int ret_fop = host_file->f_op->release(host_file->f_inode, host_file);
 	
 	kfree(host_file);
 	host_file = NULL;
@@ -96,7 +102,7 @@ static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned 
 	if (copy_from_user(&kern_offset, offset, sizeof(loff_t)) != 0)
 		return -EFAULT;
 
-	int ret_fop = host_file->fops->read(host_file, kern_buffer, length, kern_offset);
+	int ret_fop = host_file->f_op->read(host_file, kern_buffer, length, kern_offset);
 
 	if(ret_fop < 0){
 		printk(KERN_INFO " Host: Read file operation successful");
@@ -128,7 +134,7 @@ static ssize_t device_write(unsigned long param1, unsigned long param2, unsigned
 	if (copy_from_user(kern_buffer, buffer, length)) != 0)
 		return -EFAULT;
 
-	ssize_t ret_fop = host_file->fops->write(host_file, kern_buffer, length, kern_offset);
+	ssize_t ret_fop = host_file->f_op->write(host_file, kern_buffer, length, kern_offset);
 
 	if(ret_fop < 0){
 		printk(KERN_INFO " Host: Write file operation successful");
