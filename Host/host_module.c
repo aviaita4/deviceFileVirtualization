@@ -17,6 +17,8 @@
 #define SUCCESS 0
 #define PATH_NAME_MAX_SIZE 100
 #define FILE_OPERATION_SUCCESS 0
+#define DEVICE_OP_FAILURE -1
+
 
 struct file* host_file;
 
@@ -29,16 +31,30 @@ static int device_release(void);
 static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned long param3);
 static ssize_t device_write(unsigned long param1, unsigned long param2, unsigned long param3);
 
+unsigned long handle_hypercall(unsigned long nr, unsigned long a0, unsigned long a1, unsigned long a2, unsigned long a3);
+
+extern unsigned long (*kvm_transfer_handle_module)(unsigned long nr, unsigned long a0, unsigned long a1, unsigned long a2, unsigned long a3);
+
 int init_module(void)
 {
         host_file = NULL;
 	printk(KERN_INFO "Host module is up!\n");
+	
+	// Link hypercall handler
+	kvm_transfer_handle_module = &handle_hypercall;	
+
 	return SUCCESS;
 }
 
 void cleanup_module(void)
 {
 	printk(KERN_INFO "Host module is removed!\n");
+}
+
+unsigned long handle_hypercall(unsigned long nr, unsigned long a0, unsigned long a1, unsigned long a2, unsigned long a3)
+{
+	unsigned long ret = DEVICE_OP_FAILURE;
+	return ret;
 }
 
 void file_open(struct file *filp, const char *path, int flags, int rights) 
@@ -91,10 +107,10 @@ static int device_release(void)
 
 static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned long param3)
 {
+	ssize_t ret_fop = DEVICE_OP_FAILURE;
 	char __user *buffer = (char __user *)param1;
-	char kern_buffer[length];
-
 	size_t length = (size_t) param2;
+	char kern_buffer[length];
 
 	loff_t __user *offset = (loff_t __user *) param3;
 	loff_t kern_offset;
@@ -102,7 +118,7 @@ static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned 
 	if (copy_from_user(&kern_offset, offset, sizeof(loff_t)) != 0)
 		return -EFAULT;
 
-	int ret_fop = host_file->f_op->read(host_file, kern_buffer, length, kern_offset);
+	ret_fop = host_file->f_op->read(host_file, kern_buffer, length, &kern_offset);
 
 	if(ret_fop < 0){
 		printk(KERN_INFO " Host: Read file operation successful");
@@ -120,10 +136,10 @@ static ssize_t device_read(unsigned long param1, unsigned long param2, unsigned 
 
 static ssize_t device_write(unsigned long param1, unsigned long param2, unsigned long param3)
 {
+	ssize_t ret_fop = DEVICE_OP_FAILURE;	
 	char __user *buffer = (char __user *)param1;
-	char kern_buffer[length];
-
 	size_t length = (size_t) param2;
+	char kern_buffer[length];
 
 	loff_t __user *offset = (loff_t __user *) param3;
 	loff_t kern_offset;
@@ -131,10 +147,10 @@ static ssize_t device_write(unsigned long param1, unsigned long param2, unsigned
 	if (copy_from_user(&kern_offset, offset, sizeof(loff_t)) != 0)
 		return -EFAULT;
 
-	if (copy_from_user(kern_buffer, buffer, length)) != 0)
+	if (copy_from_user(kern_buffer, buffer, length) != 0)
 		return -EFAULT;
 
-	ssize_t ret_fop = host_file->f_op->write(host_file, kern_buffer, length, kern_offset);
+	ret_fop = host_file->f_op->write(host_file, kern_buffer, length, &kern_offset);
 
 	if(ret_fop < 0){
 		printk(KERN_INFO " Host: Write file operation successful");
