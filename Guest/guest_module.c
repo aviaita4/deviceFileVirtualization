@@ -6,6 +6,7 @@
 #include<linux/init.h>
 #include<linux/linkage.h>
 #include<linux/cpumask.h>
+#include<linux/slab.h>
 
 extern long kern_kvm_hypercall0(unsigned int nr);
 extern long kern_kvm_hypercall1(unsigned int nr, unsigned long p1);
