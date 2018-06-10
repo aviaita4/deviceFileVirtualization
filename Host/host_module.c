@@ -55,8 +55,9 @@ void cleanup_module(void)
 
 unsigned long handle_hypercall(unsigned long nr, unsigned long a0, unsigned long a1, unsigned long a2, unsigned long a3)
 {
-	printk(KERN_INFO "Hypercall handler module invoked finally!");
 	unsigned long ret = DEVICE_OP_FAILURE;
+	printk(KERN_INFO "Hypercall handler module invoked finally!");
+	printk(KERN_INFO "Hypercall recieved for number = %d", nr);
 	return ret;
 }
 
