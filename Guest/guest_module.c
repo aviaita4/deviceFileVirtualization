@@ -26,12 +26,13 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 
 #define HOST_FILE_PATH "/dev/test_real_dev"
 #define KVM_HYPERCALL_SUCCESS 0
-
+#define DEVICE_OP_FAILURE -20
 #define OPEN_HYPERCALL_NUM 100
 #define RELEASE_HYPERCALL_NUM 200
 #define READ_HYPERCALL_NUM 101
 #define WRITE_HYPERCALL_NUM 102
 
+#define DEVICE_NO_CONTACT "Did not invoke file operation on host device file at all!"
 
 MODULE_LICENSE("GPL");
 
@@ -77,7 +78,7 @@ static int device_open(struct inode *inode, struct file *file)
 	
 	unsigned long path_name_ptr = (unsigned long) pathname; 
 	unsigned int flags = file->f_flags;
-	fmode_t mode = file->f_mode;
+	int mode = (int)(file->f_mode);
 	
 	unsigned long ret = -1;
 
@@ -89,8 +90,11 @@ static int device_open(struct inode *inode, struct file *file)
 	ret = kern_kvm_hypercall3(OPEN_HYPERCALL_NUM, path_name_ptr, (unsigned long)flags, (unsigned long)mode);
 
 	if (ret!=KVM_HYPERCALL_SUCCESS){
+		if(ret == DEVICE_OP_FAILURE){
+                        printk(KERN_INFO DEVICE_NO_CONTACT);
+                }
 		printk(KERN_INFO "device could not be opened");
-		return -EBUSY;
+		return (int) ret;
 	}
 
 	printk(KERN_INFO "device file opened successfully");
@@ -99,12 +103,14 @@ static int device_open(struct inode *inode, struct file *file)
 
 static int device_release(struct inode *inode, struct file *file)
 {
-	unsigned int ret = -1;
-	//unsigned long ret = kern_kvm_hypercall0(RELEASE_HYPERCALL_NUM);
+	unsigned long ret = kern_kvm_hypercall0(RELEASE_HYPERCALL_NUM);
 	
 	if (ret!=KVM_HYPERCALL_SUCCESS){
+		if(ret == DEVICE_OP_FAILURE){
+			printk(KERN_INFO DEVICE_NO_CONTACT);
+		}
 		printk(KERN_INFO "device could not be released");
-		return -EFAULT;
+		return (int) ret;
 	}
 	else{
 		kfree(file);
@@ -118,8 +124,11 @@ static ssize_t device_read(struct file *filp, char *buffer, size_t length, loff_
 	long ret = kern_kvm_hypercall3(READ_HYPERCALL_NUM, (unsigned long)buffer, (unsigned long)length, (unsigned long)offset);
 
 	if (ret!=KVM_HYPERCALL_SUCCESS){
+		if(ret == DEVICE_OP_FAILURE){
+                        printk(KERN_INFO DEVICE_NO_CONTACT);
+                }
 		printk(KERN_INFO "device could not be read");
-		return -EFAULT;
+		return (ssize_t) ret;
 	}
 	else{
 		printk(KERN_INFO "device file read successfully");
@@ -132,8 +141,11 @@ static ssize_t device_write(struct file *filp, const char *buff, size_t len, lof
 	long ret = kern_kvm_hypercall3(WRITE_HYPERCALL_NUM , (unsigned long)buff, (unsigned long)len, (unsigned long)off);
 
 	if (ret!=KVM_HYPERCALL_SUCCESS){
+		if(ret == DEVICE_OP_FAILURE){
+                        printk(KERN_INFO DEVICE_NO_CONTACT);
+                }
 		printk(KERN_INFO "write did not work");
-		return -EFAULT;
+		return (ssize_t) ret;
 	}
 	else{
 		printk(KERN_INFO "write worked successfully");

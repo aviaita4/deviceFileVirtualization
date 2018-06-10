@@ -15,10 +15,14 @@
 #include <linux/buffer_head.h>
 
 #define SUCCESS 0
-#define PATH_NAME_MAX_SIZE 100
+#define PATH_NAME_MAX_SIZE 20
 #define FILE_OPERATION_SUCCESS 0
-#define DEVICE_OP_FAILURE -1
+#define DEVICE_OP_FAILURE -20
 
+#define OPEN_HYPERCALL_NUM 100
+#define RELEASE_HYPERCALL_NUM 200
+#define READ_HYPERCALL_NUM 101
+#define WRITE_HYPERCALL_NUM 102
 
 struct file* host_file;
 
@@ -58,6 +62,21 @@ unsigned long handle_hypercall(unsigned long nr, unsigned long a0, unsigned long
 	unsigned long ret = DEVICE_OP_FAILURE;
 	printk(KERN_INFO "Hypercall handler module invoked finally!");
 	printk(KERN_INFO "Hypercall recieved for number = %d", nr);
+
+	switch(nr){
+	
+		case OPEN_HYPERCALL_NUM:
+			return (unsigned long) device_open(a0, a1, a2);
+		case RELEASE_HYPERCALL_NUM: 
+			return (unsigned long) device_release();
+		case READ_HYPERCALL_NUM:
+			return (unsigned long) device_read(a0, a1, a2);
+		case WRITE_HYPERCALL_NUM:
+			return (unsigned long) device_write(a0, a1, a2);
+		default:
+			;
+	}
+
 	return ret;
 }
 
@@ -79,21 +98,21 @@ void file_open(struct file *filp, const char *path, int flags, int rights)
 
 static int device_open(unsigned long param1, unsigned long param2, unsigned long param3)
 {
-	 char __user *path_name = (char __user *) param1; 
-	 char kern_path_name[PATH_NAME_MAX_SIZE];
-	
-	 unsigned int flags = (unsigned int) param2 ;
-	 
-	 fmode_t mode = (fmode_t) param3;
+	printk(KERN_INFO "reached here: device open");
 
-	 if (copy_from_user(&kern_path_name, path_name, PATH_NAME_MAX_SIZE) != 0)
+	char __user *path_name = (char __user *) param1; 
+	char kern_path_name[PATH_NAME_MAX_SIZE];
+	unsigned int flags = (unsigned int) param2 ;
+	int  mode = (int) param3;
+
+	printk(KERN_INFO "reached here %s", path_name);	
+	
+	 if (copy_from_user(kern_path_name, path_name, PATH_NAME_MAX_SIZE) != 0){
+		printk(KERN_INFO "copying file name failed");		
 		return -EFAULT;
+	}
+	printk(KERN_INFO "reached here %s", kern_path_name);
 
-	// Open file
-	
-	// Get file*
-	
-	// Store in host_file
 	file_open(host_file, kern_path_name, flags, mode);
 	
 	return SUCCESS; 
