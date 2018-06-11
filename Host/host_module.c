@@ -96,6 +96,60 @@ void file_open(struct file *filp, const char *path, int flags, int rights)
     return;
 }
 
+void open_filep(){
+	/*
+	int fd = get_unused_fd_flags(flags);
+
+	if (fd >= 0) {
+		struct open_flags op;
+		int lookup = build_open_flags(flags, mode, &op);
+		struct file *f = do_filp_open(dfd, filename, &op, lookup);
+		if (IS_ERR(f)) {
+			put_unused_fd(fd);
+			fd = PTR_ERR(f);
+		} else {
+			fsnotify_open(f);
+			fd_install(fd, f);
+			trace_do_sys_open((char *) filename, flags, mode);
+		}
+
+		*_f = f;
+	}
+
+	return fd;
+
+	*/
+}
+
+int mimic_do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode, struct file ** f){
+
+	struct open_flags op;
+	int fd = build_open_flags(flags, mode, &op);
+	struct filename *tmp;
+
+	if (fd)
+		return fd;
+
+	tmp = getname(filename);
+	if (IS_ERR(tmp))
+		return PTR_ERR(tmp);
+
+	fd = get_unused_fd_flags(flags);
+	if (fd >= 0) {
+		struct file *f = do_filp_open(dfd, tmp, &op);
+		if (IS_ERR(f)) {
+			put_unused_fd(fd);
+			fd = PTR_ERR(f);
+		} else {
+			fsnotify_open(f);
+			fd_install(fd, f);
+		}
+		*f = f;
+	}
+	putname(tmp);
+	return fd;
+}
+
 static int device_open(unsigned long param1, unsigned long param2, unsigned long param3)
 {
 	printk(KERN_INFO "reached here: device open");
